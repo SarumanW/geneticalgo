@@ -7,12 +7,14 @@ import java.util.Random;
 @Data
 public class Individual {
     private int fitness;
-    private int[] genes = new int[5];
-    private int geneLength = 5;
+    private int[] genes;
+    private Item[] items;
 
-    public Individual() {
+    public Individual(int chromosomeLength, Item[] items) {
+        this.items = items;
+        this.genes = new int[chromosomeLength];
+
         Random rn = new Random();
-
         for (int i = 0; i < genes.length; i++) {
             genes[i] = Math.abs(rn.nextInt() % 2);
         }

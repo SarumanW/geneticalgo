@@ -9,71 +9,70 @@ import java.util.Random;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GeneticAlgoUtil {
-    private Individual fittest;
-    private Individual secondFittest;
+class GeneticAlgoUtil {
+    private Individual bestIndividual;
+    private Individual secondBestIndividual;
     private Population population;
 
-    public void selection() {
+    void selection() {
         //Select the most fitness individual
-        fittest = population.getFittestIndividual();
+        bestIndividual = population.getBestIndividual();
 
         //Select the second most fitness individual
-        secondFittest = population.getSecondFittest();
+        secondBestIndividual = population.getSecondBestIndividual();
     }
 
     //Crossover
-    public void crossover() {
+    void crossover() {
         Random rn = new Random();
 
         //Select a random crossover point
-        int crossOverPoint = rn.nextInt(population.getIndividuals()[0].getGeneLength());
+        int crossOverPoint = rn.nextInt(population.getIndividuals()[0].getGenes().length);
 
         //Swap values among parents
         for (int i = 0; i < crossOverPoint; i++) {
-            int temp = fittest.getGenes()[i];
-            fittest.getGenes()[i] = secondFittest.getGenes()[i];
-            secondFittest.getGenes()[i] = temp;
-
+            int temp = bestIndividual.getGenes()[i];
+            bestIndividual.getGenes()[i] = secondBestIndividual.getGenes()[i];
+            secondBestIndividual.getGenes()[i] = temp;
         }
 
     }
 
-    public void mutation() {
+    void mutation() {
         Random rn = new Random();
 
         //Select a random mutation point
-        int mutationPoint = rn.nextInt(population.getIndividuals()[0].getGeneLength());
+        int mutationPoint = rn.nextInt(population.getIndividuals()[0].getGenes().length);
 
         //Flip values at the mutation point
-        if (fittest.getGenes()[mutationPoint] == 0) {
-            fittest.getGenes()[mutationPoint] = 1;
+        if (bestIndividual.getGenes()[mutationPoint] == 0) {
+            bestIndividual.getGenes()[mutationPoint] = 1;
         } else {
-            fittest.getGenes()[mutationPoint] = 0;
+            bestIndividual.getGenes()[mutationPoint] = 0;
         }
 
-        mutationPoint = rn.nextInt(population.getIndividuals()[0].getGeneLength());
+        mutationPoint = rn.nextInt(population.getIndividuals()[0].getGenes().length);
 
-        if (secondFittest.getGenes()[mutationPoint] == 0) {
-            secondFittest.getGenes()[mutationPoint] = 1;
+        if (secondBestIndividual.getGenes()[mutationPoint] == 0) {
+            secondBestIndividual.getGenes()[mutationPoint] = 1;
         } else {
-            secondFittest.getGenes()[mutationPoint] = 0;
+            secondBestIndividual.getGenes()[mutationPoint] = 0;
         }
     }
 
-    Individual getFittestOffspring() {
-        if (fittest.getFitness() > secondFittest.getFitness()) {
-            return fittest;
+    private Individual getBestFromTwoChildren() {
+        if (bestIndividual.getFitness() > secondBestIndividual.getFitness()) {
+            return bestIndividual;
         }
-        return secondFittest;
+        return secondBestIndividual;
     }
 
-    void addFittestOffspring() {
-        fittest.calcFitness();
-        secondFittest.calcFitness();
+    void addChildToPopulation() {
+        bestIndividual.calcFitness();
+        secondBestIndividual.calcFitness();
 
-        int leastFittestIndex = population.getLeastFittestIndex();
+        int worstIndividualIndex = population.getWorstIndividualIndex();
 
-        population.getIndividuals()[leastFittestIndex] = getFittestOffspring();
+        population.getIndividuals()[worstIndividualIndex] = getBestFromTwoChildren();
     }
 }

@@ -1,16 +1,19 @@
 import model.Individual;
+import model.Item;
 import model.Population;
 
 import java.util.Random;
 
 public class Test {
     private static final int POPULATION_SIZE = 10;
+    private static final int ITEMS_SIZE = 10;
 
     public static void main(String[] args) {
-        Population population = new Population(POPULATION_SIZE);
+        Item[] items = Item.generateItemsList(ITEMS_SIZE);
 
-        Individual fittest = new Individual();
-        Individual secondFittest = new Individual();
+        Population population = new Population(POPULATION_SIZE, ITEMS_SIZE, items);
+        Individual fittest = new Individual(ITEMS_SIZE, items);
+        Individual secondFittest = new Individual(ITEMS_SIZE, items);
 
         GeneticAlgoUtil geneticAlgoUtil = new GeneticAlgoUtil(fittest, secondFittest, population);
 
@@ -24,11 +27,13 @@ public class Test {
         System.out.println("Generation: " + generationCount + " Fitness: " + population.getFitness());
 
         //While population gets an individual with maximum fitness
-        while (population.getFitness() < 5) {
+        while (!population.checkWhetherFitnessIsGlobalOptimum()) {
             ++generationCount;
 
+            //Select two the best individuals
             geneticAlgoUtil.selection();
 
+            //Generate children
             geneticAlgoUtil.crossover();
 
             if (rn.nextInt() % 7 < 5) {
@@ -36,7 +41,7 @@ public class Test {
             }
 
             //Add fitness offspring to population
-            geneticAlgoUtil.addFittestOffspring();
+            geneticAlgoUtil.addChildToPopulation();
 
             population.calculateFitness();
 
@@ -44,10 +49,10 @@ public class Test {
         }
 
         System.out.println("\nSolution found in generation " + generationCount);
-        System.out.println("Fitness: " + population.getFittestIndividual().getFitness());
+        System.out.println("Fitness: " + population.getBestIndividual().getFitness());
         System.out.print("Genes: ");
         for (int i = 0; i < 5; i++) {
-            System.out.print(population.getFittestIndividual().getGenes()[i]);
+            System.out.print(population.getBestIndividual().getGenes()[i]);
         }
 
         System.out.println();
