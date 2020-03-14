@@ -15,10 +15,10 @@ class GeneticAlgoUtil {
     private Population population;
 
     void selection() {
-        //Select the most fitness individual
+        //Select the most value individual
         bestIndividual = population.getBestIndividual();
 
-        //Select the second most fitness individual
+        //Select the second most value individual
         secondBestIndividual = population.getSecondBestIndividual();
     }
 
@@ -61,15 +61,15 @@ class GeneticAlgoUtil {
     }
 
     private Individual getBestFromTwoChildren() {
-        if (bestIndividual.getFitness() > secondBestIndividual.getFitness()) {
+        if (bestIndividual.getValue() > secondBestIndividual.getValue()) {
             return bestIndividual;
         }
         return secondBestIndividual;
     }
 
     void addChildToPopulation() {
-        bestIndividual.calcFitness();
-        secondBestIndividual.calcFitness();
+        bestIndividual.calcValue();
+        secondBestIndividual.calcValue();
 
         int worstIndividualIndex = population.getWorstIndividualIndex();
 

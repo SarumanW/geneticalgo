@@ -8,12 +8,12 @@ import java.util.List;
 @Data
 public class Population {
     private Individual[] individuals;
-    private int fitness = 0;
-    private List<Integer> fitnessValuesList;
+    private int value = 0;
+    private List<Integer> valuesList;
 
     public Population(int popSize, int chromosomeSize, Item[] items) {
         this.individuals = new Individual[popSize];
-        this.fitnessValuesList = new ArrayList<>();
+        this.valuesList = new ArrayList<>();
 
         for (int i = 0; i < individuals.length; i++) {
             individuals[i] = new Individual(chromosomeSize, items);
@@ -25,14 +25,14 @@ public class Population {
         int maxFitIndex = 0;
 
         for (int i = 0; i < individuals.length; i++) {
-            if (maxFit <= individuals[i].getFitness()) {
-                maxFit = individuals[i].getFitness();
+            if (maxFit <= individuals[i].getValue()) {
+                maxFit = individuals[i].getValue();
                 maxFitIndex = i;
             }
         }
 
-        fitness = individuals[maxFitIndex].getFitness();
-        fitnessValuesList.add(fitness);
+        value = individuals[maxFitIndex].getValue();
+        valuesList.add(value);
 
         return individuals[maxFitIndex];
     }
@@ -42,10 +42,10 @@ public class Population {
         int maxFit2 = 0;
 
         for (int i = 0; i < individuals.length; i++) {
-            if (individuals[i].getFitness() > individuals[maxFit1].getFitness()) {
+            if (individuals[i].getValue() > individuals[maxFit1].getValue()) {
                 maxFit2 = maxFit1;
                 maxFit1 = i;
-            } else if (individuals[i].getFitness() > individuals[maxFit2].getFitness()) {
+            } else if (individuals[i].getValue() > individuals[maxFit2].getValue()) {
                 maxFit2 = i;
             }
         }
@@ -58,8 +58,8 @@ public class Population {
         int minFitIndex = 0;
 
         for (int i = 0; i < individuals.length; i++) {
-            if (minFitVal >= individuals[i].getFitness()) {
-                minFitVal = individuals[i].getFitness();
+            if (minFitVal >= individuals[i].getValue()) {
+                minFitVal = individuals[i].getValue();
                 minFitIndex = i;
             }
         }
@@ -67,20 +67,20 @@ public class Population {
         return minFitIndex;
     }
 
-    //Calculate fitness of each individual
-    public void calculateFitness() {
+    public void calculateValueForEachIndividual() {
         for (Individual individual : individuals) {
-            individual.calcFitness();
+            individual.calcValue();
         }
 
         getBestIndividual();
     }
 
+
     public boolean checkWhetherFitnessIsGlobalOptimum() {
         int count = 0;
 
-        for (Integer fitnessValue : fitnessValuesList) {
-            if (fitnessValue == fitness) {
+        for (Integer fitnessValue : valuesList) {
+            if (fitnessValue == value) {
                 count++;
             } else {
                 count = 0;

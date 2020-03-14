@@ -6,7 +6,7 @@ import java.util.Random;
 
 @Data
 public class Individual {
-    private int fitness;
+    private int value;
     private int[] genes;
     private Item[] items;
 
@@ -20,12 +20,12 @@ public class Individual {
         }
     }
 
-    public void calcFitness() {
-        fitness = 0;
+    public void calcValue() {
+        value = 0;
 
         for (int i = 0; i < 5; i++) {
             if (genes[i] == 1) {
-                ++fitness;
+                ++value;
             }
         }
     }

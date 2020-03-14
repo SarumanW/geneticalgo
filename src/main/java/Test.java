@@ -12,21 +12,21 @@ public class Test {
         Item[] items = Item.generateItemsList(ITEMS_SIZE);
 
         Population population = new Population(POPULATION_SIZE, ITEMS_SIZE, items);
-        Individual fittest = new Individual(ITEMS_SIZE, items);
-        Individual secondFittest = new Individual(ITEMS_SIZE, items);
+        Individual bestIndividual = new Individual(ITEMS_SIZE, items);
+        Individual secondBestIndividual = new Individual(ITEMS_SIZE, items);
 
-        GeneticAlgoUtil geneticAlgoUtil = new GeneticAlgoUtil(fittest, secondFittest, population);
+        GeneticAlgoUtil geneticAlgoUtil = new GeneticAlgoUtil(bestIndividual, secondBestIndividual, population);
 
         int generationCount = 0;
 
         Random rn = new Random();
 
-        //Calculate fitness of each individual
-        population.calculateFitness();
+        //Calculate value of each individual
+        population.calculateValueForEachIndividual();
 
-        System.out.println("Generation: " + generationCount + " Fitness: " + population.getFitness());
+        System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
 
-        //While population gets an individual with maximum fitness
+        //While population gets an individual with maximum value
         while (!population.checkWhetherFitnessIsGlobalOptimum()) {
             ++generationCount;
 
@@ -40,22 +40,21 @@ public class Test {
                 geneticAlgoUtil.mutation();
             }
 
-            //Add fitness offspring to population
+            //Add value offspring to population
             geneticAlgoUtil.addChildToPopulation();
 
-            population.calculateFitness();
+            population.calculateValueForEachIndividual();
 
-            System.out.println("Generation: " + generationCount + " Fittest: " + population.getFitness());
+            System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
         }
 
         System.out.println("\nSolution found in generation " + generationCount);
-        System.out.println("Fitness: " + population.getBestIndividual().getFitness());
+        System.out.println("Value: " + population.getBestIndividual().getValue());
         System.out.print("Genes: ");
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < population.getBestIndividual().getGenes().length; i++) {
             System.out.print(population.getBestIndividual().getGenes()[i]);
         }
 
         System.out.println();
-
     }
 }
