@@ -7,6 +7,7 @@ import java.util.Random;
 @Data
 public class Individual {
     private int value;
+    private int fitness;
     private int[] genes;
     private Item[] items;
 
@@ -23,10 +24,16 @@ public class Individual {
     public void calcValue() {
         value = 0;
 
-        for (int i = 0; i < 5; i++) {
-            if (genes[i] == 1) {
-                ++value;
-            }
+        for (int i = 0; i < genes.length; i++) {
+            value += genes[i] * items[i].getValue();
+        }
+    }
+
+    public void calcFitness() {
+        fitness = 0;
+
+        for (int i = 0; i < genes.length; i++) {
+            fitness += genes[i] * items[i].getFitness();
         }
     }
 }

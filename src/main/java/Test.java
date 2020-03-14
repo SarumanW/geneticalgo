@@ -30,6 +30,8 @@ public class Test {
         while (!population.checkWhetherFitnessIsGlobalOptimum()) {
             ++generationCount;
 
+            population.checkFitness();
+
             //Select two the best individuals
             geneticAlgoUtil.selection();
 

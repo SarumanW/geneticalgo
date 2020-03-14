@@ -72,9 +72,26 @@ public class Population {
             individual.calcValue();
         }
 
-        getBestIndividual();
+        this.getBestIndividual();
     }
 
+    public void checkFitness() {
+        for (Individual individual : individuals) {
+            individual.calcFitness();
+        }
+
+        this.fillNotFitWithZero();
+    }
+
+    private void fillNotFitWithZero() {
+        for (Individual individual : individuals) {
+            if (individual.getFitness() > 30) {
+                for (int i = 0; i < individual.getGenes().length; i++) {
+                    individual.getGenes()[i] = 0;
+                }
+            }
+        }
+    }
 
     public boolean checkWhetherFitnessIsGlobalOptimum() {
         int count = 0;
@@ -87,7 +104,7 @@ public class Population {
             }
         }
 
-        return count >= 30;
+        return count >= 15;
     }
 
 }
