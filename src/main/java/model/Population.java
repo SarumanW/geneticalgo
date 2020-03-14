@@ -7,6 +7,9 @@ import java.util.List;
 
 @Data
 public class Population {
+    private static final int OPTIMUM_PARAM = 1000;
+    private static final int MAX_FITNESS = 4000;
+
     private Individual[] individuals;
     private int value = 0;
     private List<Integer> valuesList;
@@ -37,36 +40,6 @@ public class Population {
         return individuals[maxFitIndex];
     }
 
-    public Individual getSecondBestIndividual() {
-        int maxFit1 = 0;
-        int maxFit2 = 0;
-
-        for (int i = 0; i < individuals.length; i++) {
-            if (individuals[i].getValue() > individuals[maxFit1].getValue()) {
-                maxFit2 = maxFit1;
-                maxFit1 = i;
-            } else if (individuals[i].getValue() > individuals[maxFit2].getValue()) {
-                maxFit2 = i;
-            }
-        }
-
-        return individuals[maxFit2];
-    }
-
-    public int getWorstIndividualIndex() {
-        int minFitVal = Integer.MAX_VALUE;
-        int minFitIndex = 0;
-
-        for (int i = 0; i < individuals.length; i++) {
-            if (minFitVal >= individuals[i].getValue()) {
-                minFitVal = individuals[i].getValue();
-                minFitIndex = i;
-            }
-        }
-
-        return minFitIndex;
-    }
-
     public void calculateValueForEachIndividual() {
         for (Individual individual : individuals) {
             individual.calcValue();
@@ -85,7 +58,7 @@ public class Population {
 
     private void fillNotFitWithZero() {
         for (Individual individual : individuals) {
-            if (individual.getFitness() > 30) {
+            if (individual.getFitness() > MAX_FITNESS) {
                 for (int i = 0; i < individual.getGenes().length; i++) {
                     individual.getGenes()[i] = 0;
                 }
@@ -93,18 +66,25 @@ public class Population {
         }
     }
 
-    public boolean checkWhetherFitnessIsGlobalOptimum() {
-        int count = 0;
+    public boolean checkWhetherValueIsGlobalOptimum(int generationCount) {
+        boolean isMax = true;
 
-        for (Integer fitnessValue : valuesList) {
-            if (fitnessValue == value) {
-                count++;
-            } else {
-                count = 0;
+        if (generationCount >= OPTIMUM_PARAM) {
+            Integer valueToCheck = valuesList.get(generationCount - OPTIMUM_PARAM);
+
+            for (int j = generationCount - OPTIMUM_PARAM; j < generationCount; j++) {
+                isMax = isMax && valueToCheck >= valuesList.get(j);
+            }
+            if (isMax) {
+                System.out.println("\nSolution found in generation " + (generationCount - OPTIMUM_PARAM));
+                System.out.println("Value: " + valueToCheck);
+                System.out.println();
+
+                return true;
             }
         }
 
-        return count >= 15;
+        return false;
     }
 
 }

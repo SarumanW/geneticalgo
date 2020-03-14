@@ -2,20 +2,24 @@ import model.Individual;
 import model.Item;
 import model.Population;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class Test {
-    private static final int POPULATION_SIZE = 10;
-    private static final int ITEMS_SIZE = 10;
+    private static final int POPULATION_SIZE = 2000;
+    private static final int ITEMS_SIZE = 2000;
 
     public static void main(String[] args) {
+        long startTime = System.nanoTime();
+
         Item[] items = Item.generateItemsList(ITEMS_SIZE);
+        //Item[] items = Item.generateItemsList();
 
         Population population = new Population(POPULATION_SIZE, ITEMS_SIZE, items);
-        Individual bestIndividual = new Individual(ITEMS_SIZE, items);
-        Individual secondBestIndividual = new Individual(ITEMS_SIZE, items);
 
-        GeneticAlgoUtil geneticAlgoUtil = new GeneticAlgoUtil(bestIndividual, secondBestIndividual, population);
+        GeneticAlgoUtil geneticAlgoUtil = new GeneticAlgoUtil(population);
 
         int generationCount = 0;
 
@@ -27,36 +31,35 @@ public class Test {
         System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
 
         //While population gets an individual with maximum value
-        while (!population.checkWhetherFitnessIsGlobalOptimum()) {
-            ++generationCount;
+        while (!population.checkWhetherValueIsGlobalOptimum(++generationCount)) {
 
             population.checkFitness();
 
-            //Select two the best individuals
-            geneticAlgoUtil.selection();
+            List<Individual> parentsAndChildren = new ArrayList<>(
+                    Arrays.asList(population.getIndividuals()));
 
-            //Generate children
-            geneticAlgoUtil.crossover();
+            for(int i = 0; i < POPULATION_SIZE; i++) {
+                Individual[] parents = geneticAlgoUtil.selection();
 
-            if (rn.nextInt() % 7 < 5) {
-                geneticAlgoUtil.mutation();
+                Individual[] children = geneticAlgoUtil.crossover(parents);
+
+                if (rn.nextInt() % 7 < 5) {
+                    geneticAlgoUtil.mutation(children);
+                }
+
+                parentsAndChildren.addAll(Arrays.asList(children));
             }
 
-            //Add value offspring to population
-            geneticAlgoUtil.addChildToPopulation();
+            geneticAlgoUtil.optimizePopulation(parentsAndChildren);
 
             population.calculateValueForEachIndividual();
 
             System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
         }
 
-        System.out.println("\nSolution found in generation " + generationCount);
-        System.out.println("Value: " + population.getBestIndividual().getValue());
-        System.out.print("Genes: ");
-        for (int i = 0; i < population.getBestIndividual().getGenes().length; i++) {
-            System.out.print(population.getBestIndividual().getGenes()[i]);
-        }
+        long endTime = System.nanoTime();
 
-        System.out.println();
+        long duration = (endTime - startTime) / 1000000;
+        System.out.println(duration);
     }
 }

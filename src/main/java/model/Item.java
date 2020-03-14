@@ -25,4 +25,18 @@ public class Item {
 
         return items;
     }
+
+    public static Item[] generateItemsList() {
+        Item[] items = new Item[7];
+
+        items[0] = new Item("item1", 7, 2);
+        items[1] = new Item("item1", 2, 3);
+        items[2] = new Item("item1", 5, 5);
+        items[3] = new Item("item1", 1, 6);
+        items[4] = new Item("item1", 6, 4);
+        items[5] = new Item("item1", 9, 2);
+        items[6] = new Item("item1", 8, 3);
+
+        return items;
+    }
 }

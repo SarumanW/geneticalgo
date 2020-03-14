@@ -4,26 +4,37 @@ import lombok.NoArgsConstructor;
 import model.Individual;
 import model.Population;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 class GeneticAlgoUtil {
-    private Individual bestIndividual;
-    private Individual secondBestIndividual;
     private Population population;
 
-    void selection() {
-        //Select the most value individual
-        bestIndividual = population.getBestIndividual();
+    //Get two different parents
+    Individual[] selection() {
+        Individual[] parents = new Individual[2];
 
-        //Select the second most value individual
-        secondBestIndividual = population.getSecondBestIndividual();
+        int firstIndex = 0;
+        int secondIndex = 0;
+
+        while (firstIndex == secondIndex) {
+            firstIndex = ThreadLocalRandom.current().nextInt(0, population.getIndividuals().length);
+            secondIndex = ThreadLocalRandom.current().nextInt(0, population.getIndividuals().length);
+        }
+
+        parents[0] = population.getIndividuals()[firstIndex];
+        parents[1] = population.getIndividuals()[secondIndex];
+
+        return parents;
     }
 
-    //Crossover
-    void crossover() {
+    Individual[] crossover(Individual[] parents) {
         Random rn = new Random();
 
         //Select a random crossover point
@@ -31,48 +42,48 @@ class GeneticAlgoUtil {
 
         //Swap values among parents
         for (int i = 0; i < crossOverPoint; i++) {
-            int temp = bestIndividual.getGenes()[i];
-            bestIndividual.getGenes()[i] = secondBestIndividual.getGenes()[i];
-            secondBestIndividual.getGenes()[i] = temp;
+            int temp = parents[0].getGenes()[i];
+            parents[0].getGenes()[i] = parents[1].getGenes()[i];
+            parents[1].getGenes()[i] = temp;
         }
 
+        return parents;
     }
 
-    void mutation() {
+    void mutation(Individual[] children) {
         Random rn = new Random();
 
         //Select a random mutation point
         int mutationPoint = rn.nextInt(population.getIndividuals()[0].getGenes().length);
 
         //Flip values at the mutation point
-        if (bestIndividual.getGenes()[mutationPoint] == 0) {
-            bestIndividual.getGenes()[mutationPoint] = 1;
+        if (children[0].getGenes()[mutationPoint] == 0) {
+            children[0].getGenes()[mutationPoint] = 1;
         } else {
-            bestIndividual.getGenes()[mutationPoint] = 0;
+            children[0].getGenes()[mutationPoint] = 0;
         }
 
         mutationPoint = rn.nextInt(population.getIndividuals()[0].getGenes().length);
 
-        if (secondBestIndividual.getGenes()[mutationPoint] == 0) {
-            secondBestIndividual.getGenes()[mutationPoint] = 1;
+        if (children[1].getGenes()[mutationPoint] == 0) {
+            children[1].getGenes()[mutationPoint] = 1;
         } else {
-            secondBestIndividual.getGenes()[mutationPoint] = 0;
+            children[1].getGenes()[mutationPoint] = 0;
         }
     }
 
-    private Individual getBestFromTwoChildren() {
-        if (bestIndividual.getValue() > secondBestIndividual.getValue()) {
-            return bestIndividual;
+    void optimizePopulation(List<Individual> parentsAndChildren) {
+        for(Individual individual : parentsAndChildren) {
+            individual.calcValue();
         }
-        return secondBestIndividual;
-    }
 
-    void addChildToPopulation() {
-        bestIndividual.calcValue();
-        secondBestIndividual.calcValue();
+        List<Individual> newPopulation = parentsAndChildren.stream()
+                .sorted(Comparator.comparingInt(Individual::getValue).reversed())
+                .limit(population.getIndividuals().length)
+                .collect(Collectors.toList());
 
-        int worstIndividualIndex = population.getWorstIndividualIndex();
-
-        population.getIndividuals()[worstIndividualIndex] = getBestFromTwoChildren();
+        for (int i = 0; i < population.getIndividuals().length; i++) {
+            population.getIndividuals()[i] = newPopulation.get(i);
+        }
     }
 }
