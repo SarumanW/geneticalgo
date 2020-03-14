@@ -1,6 +1,8 @@
 import model.Individual;
 import model.Item;
 import model.Population;
+import tasks.SelectionCrossoverMutation;
+import util.GeneticAlgoUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,11 +10,13 @@ import java.util.List;
 import java.util.Random;
 
 public class Test {
-    private static final int POPULATION_SIZE = 2000;
-    private static final int ITEMS_SIZE = 2000;
+    private static final int POPULATION_SIZE = 500;
+    private static final int ITEMS_SIZE = 500;
 
-    public static void main(String[] args) {
-        long startTime = System.nanoTime();
+    private static final int
+            POOL_SIZE = Runtime.getRuntime().availableProcessors();
+
+    public static void main(String[] args) throws InterruptedException {
 
         Item[] items = Item.generateItemsList(ITEMS_SIZE);
         //Item[] items = Item.generateItemsList();
@@ -21,14 +25,20 @@ public class Test {
 
         GeneticAlgoUtil geneticAlgoUtil = new GeneticAlgoUtil(population);
 
-        int generationCount = 0;
+        testSystem(population, geneticAlgoUtil);
+        parallelTestSystem(population, geneticAlgoUtil);
+    }
 
+    private static void testSystem(Population population, GeneticAlgoUtil geneticAlgoUtil) {
+        long startTime = System.nanoTime();
+
+        int generationCount = 0;
         Random rn = new Random();
 
         //Calculate value of each individual
         population.calculateValueForEachIndividual();
 
-        System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
+        //System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
 
         //While population gets an individual with maximum value
         while (!population.checkWhetherValueIsGlobalOptimum(++generationCount)) {
@@ -38,7 +48,7 @@ public class Test {
             List<Individual> parentsAndChildren = new ArrayList<>(
                     Arrays.asList(population.getIndividuals()));
 
-            for(int i = 0; i < POPULATION_SIZE; i++) {
+            for (int i = 0; i < POPULATION_SIZE; i++) {
                 Individual[] parents = geneticAlgoUtil.selection();
 
                 Individual[] children = geneticAlgoUtil.crossover(parents);
@@ -54,7 +64,52 @@ public class Test {
 
             population.calculateValueForEachIndividual();
 
-            System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
+            //System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
+        }
+
+        long endTime = System.nanoTime();
+
+        long duration = (endTime - startTime) / 1000000;
+        System.out.println(duration);
+    }
+
+    private static void parallelTestSystem(Population population, GeneticAlgoUtil geneticAlgoUtil) throws InterruptedException {
+        long startTime = System.nanoTime();
+
+        int generationCount = 0;
+
+        //Calculate value of each individual
+        population.calculateValueForEachIndividual();
+
+        //System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
+
+        //While population gets an individual with maximum value
+        while (!population.checkWhetherValueIsGlobalOptimum(++generationCount)) {
+
+            population.checkFitness();
+
+            List<Individual> parentsAndChildren = new ArrayList<>(
+                    Arrays.asList(population.getIndividuals()));
+
+            List<SelectionCrossoverMutation> tasks = new ArrayList<>();
+
+            for (int i = 0; i < POOL_SIZE; i++) {
+                tasks.add(new SelectionCrossoverMutation(geneticAlgoUtil, parentsAndChildren));
+            }
+
+            for (int i = 0; i < POOL_SIZE; i++) {
+                tasks.get(i).start();
+            }
+
+            for (int i = 0; i < POOL_SIZE; i++) {
+                tasks.get(i).join();
+            }
+
+            geneticAlgoUtil.optimizePopulation(parentsAndChildren);
+
+            population.calculateValueForEachIndividual();
+
+            //System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
         }
 
         long endTime = System.nanoTime();

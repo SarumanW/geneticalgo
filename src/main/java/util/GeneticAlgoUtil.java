@@ -1,3 +1,5 @@
+package util;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,11 +15,11 @@ import java.util.stream.Collectors;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-class GeneticAlgoUtil {
+public class GeneticAlgoUtil {
     private Population population;
 
     //Get two different parents
-    Individual[] selection() {
+    public synchronized Individual[] selection() {
         Individual[] parents = new Individual[2];
 
         int firstIndex = 0;
@@ -34,7 +36,7 @@ class GeneticAlgoUtil {
         return parents;
     }
 
-    Individual[] crossover(Individual[] parents) {
+    public synchronized Individual[] crossover(Individual[] parents) {
         Random rn = new Random();
 
         //Select a random crossover point
@@ -50,7 +52,7 @@ class GeneticAlgoUtil {
         return parents;
     }
 
-    void mutation(Individual[] children) {
+    public synchronized void mutation(Individual[] children) {
         Random rn = new Random();
 
         //Select a random mutation point
@@ -72,8 +74,8 @@ class GeneticAlgoUtil {
         }
     }
 
-    void optimizePopulation(List<Individual> parentsAndChildren) {
-        for(Individual individual : parentsAndChildren) {
+    public void optimizePopulation(List<Individual> parentsAndChildren) {
+        for (Individual individual : parentsAndChildren) {
             individual.calcValue();
         }
 

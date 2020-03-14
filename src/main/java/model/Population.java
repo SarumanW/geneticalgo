@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class Population {
     private static final int OPTIMUM_PARAM = 1000;
-    private static final int MAX_FITNESS = 4000;
+    private static final int MAX_FITNESS = 1500;
 
     private Individual[] individuals;
     private int value = 0;
@@ -23,7 +23,7 @@ public class Population {
         }
     }
 
-    public Individual getBestIndividual() {
+    private void computeBestIndividual() {
         int maxFit = Integer.MIN_VALUE;
         int maxFitIndex = 0;
 
@@ -36,8 +36,6 @@ public class Population {
 
         value = individuals[maxFitIndex].getValue();
         valuesList.add(value);
-
-        return individuals[maxFitIndex];
     }
 
     public void calculateValueForEachIndividual() {
@@ -45,7 +43,7 @@ public class Population {
             individual.calcValue();
         }
 
-        this.getBestIndividual();
+        this.computeBestIndividual();
     }
 
     public void checkFitness() {
