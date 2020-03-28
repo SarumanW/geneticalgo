@@ -5,11 +5,11 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
+import static model.Settings.MAX_FITNESS;
+import static model.Settings.OPTIMUM_PARAM;
+
 @Data
 public class Population {
-    private static final int OPTIMUM_PARAM = 1000;
-    private static final int MAX_FITNESS = 1500;
-
     private Individual[] individuals;
     private int value = 0;
     private List<Integer> valuesList;

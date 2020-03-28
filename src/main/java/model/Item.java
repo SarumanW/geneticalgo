@@ -19,8 +19,8 @@ public class Item {
 
         for (int i = 0; i < listSize; i++) {
             items[i] = new Item("item" + i,
-                    ThreadLocalRandom.current().nextInt(0, 11),
-                    ThreadLocalRandom.current().nextInt(1, 6));
+                    ThreadLocalRandom.current().nextInt(0, 50),
+                    ThreadLocalRandom.current().nextInt(1, 100));
         }
 
         return items;

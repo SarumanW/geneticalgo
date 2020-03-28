@@ -12,6 +12,8 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import static model.Settings.ITEMS_SIZE;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -55,22 +57,17 @@ public class GeneticAlgoUtil {
     public synchronized void mutation(Individual[] children) {
         Random rn = new Random();
 
-        //Select a random mutation point
-        int mutationPoint = rn.nextInt(population.getIndividuals()[0].getGenes().length);
+        for (Individual child : children) {
+            for (int i = 0; i < ITEMS_SIZE / 2; i++) {
+                int mutationPoint = rn.nextInt(population.getIndividuals()[0].getGenes().length);
 
-        //Flip values at the mutation point
-        if (children[0].getGenes()[mutationPoint] == 0) {
-            children[0].getGenes()[mutationPoint] = 1;
-        } else {
-            children[0].getGenes()[mutationPoint] = 0;
-        }
-
-        mutationPoint = rn.nextInt(population.getIndividuals()[0].getGenes().length);
-
-        if (children[1].getGenes()[mutationPoint] == 0) {
-            children[1].getGenes()[mutationPoint] = 1;
-        } else {
-            children[1].getGenes()[mutationPoint] = 0;
+                //Flip values at the mutation point
+                if (child.getGenes()[mutationPoint] == 0) {
+                    child.getGenes()[mutationPoint] = 1;
+                } else {
+                    child.getGenes()[mutationPoint] = 0;
+                }
+            }
         }
     }
 

@@ -9,9 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import static model.Settings.ITEMS_SIZE;
+import static model.Settings.POPULATION_SIZE;
+
 public class Test {
-    private static final int POPULATION_SIZE = 500;
-    private static final int ITEMS_SIZE = 500;
 
     private static final int
             POOL_SIZE = Runtime.getRuntime().availableProcessors();
