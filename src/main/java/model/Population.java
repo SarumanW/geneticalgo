@@ -5,8 +5,7 @@ import lombok.Data;
 import java.util.ArrayList;
 import java.util.List;
 
-import static model.Settings.MAX_FITNESS;
-import static model.Settings.OPTIMUM_PARAM;
+import static model.Settings.*;
 
 @Data
 public class Population {
@@ -14,8 +13,8 @@ public class Population {
     private int value = 0;
     private List<Integer> valuesList;
 
-    public Population(int popSize, int chromosomeSize, Item[] items) {
-        this.individuals = new Individual[popSize];
+    public Population(int chromosomeSize, Item[] items) {
+        this.individuals = new Individual[POPULATION_SIZE];
         this.valuesList = new ArrayList<>();
 
         for (int i = 0; i < individuals.length; i++) {
@@ -46,6 +45,15 @@ public class Population {
         this.computeBestIndividual();
     }
 
+    public void valueAndFitness() {
+        for (Individual individual : individuals) {
+            individual.calcValue();
+            individual.calcFitness();
+        }
+
+        this.computeBestIndividual();
+    }
+
     public void checkFitness() {
         for (Individual individual : individuals) {
             individual.calcFitness();
@@ -60,6 +68,8 @@ public class Population {
                 for (int i = 0; i < individual.getGenes().length; i++) {
                     individual.getGenes()[i] = 0;
                 }
+
+                individual.setValue(0);
             }
         }
     }
@@ -71,9 +81,10 @@ public class Population {
             Integer valueToCheck = valuesList.get(generationCount - OPTIMUM_PARAM);
 
             for (int j = generationCount - OPTIMUM_PARAM; j < generationCount; j++) {
-                isMax = isMax && valueToCheck >= valuesList.get(j);
+                isMax = isMax && (valueToCheck >= valuesList.get(j));
             }
-            if (isMax) {
+
+            if (isMax && valueToCheck < MAX_FITNESS) {
                 System.out.println("\nSolution found in generation " + (generationCount - OPTIMUM_PARAM));
                 System.out.println("Value: " + valueToCheck);
                 System.out.println();

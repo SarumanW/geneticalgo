@@ -8,21 +8,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static model.Settings.ITEMS_SIZE;
-import static model.Settings.POPULATION_SIZE;
+import static model.Settings.PARENTS_PAIRS_COUNT;
 
 public class Test {
 
     private static final int
             POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
+    private static final ExecutorService exec = Executors.newFixedThreadPool(POOL_SIZE);
+
     public static void main(String[] args) throws InterruptedException {
 
         Item[] items = Item.generateItemsList(ITEMS_SIZE);
         //Item[] items = Item.generateItemsList();
 
-        Population population = new Population(POPULATION_SIZE, ITEMS_SIZE, items);
+        Population population = new Population(ITEMS_SIZE, items);
 
         GeneticAlgoUtil geneticAlgoUtil = new GeneticAlgoUtil(population);
 
@@ -36,12 +40,10 @@ public class Test {
         int generationCount = 0;
         Random rn = new Random();
 
-        //Calculate value of each individual
         population.calculateValueForEachIndividual();
 
         //System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
 
-        //While population gets an individual with maximum value
         while (!population.checkWhetherValueIsGlobalOptimum(++generationCount)) {
 
             population.checkFitness();
@@ -49,7 +51,7 @@ public class Test {
             List<Individual> parentsAndChildren = new ArrayList<>(
                     Arrays.asList(population.getIndividuals()));
 
-            for (int i = 0; i < POPULATION_SIZE; i++) {
+            for (int i = 0; i < PARENTS_PAIRS_COUNT; i++) {
                 Individual[] parents = geneticAlgoUtil.selection();
 
                 Individual[] children = geneticAlgoUtil.crossover(parents);
@@ -63,7 +65,7 @@ public class Test {
 
             geneticAlgoUtil.optimizePopulation(parentsAndChildren);
 
-            population.calculateValueForEachIndividual();
+            population.valueAndFitness();
 
             //System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
         }
@@ -79,12 +81,10 @@ public class Test {
 
         int generationCount = 0;
 
-        //Calculate value of each individual
         population.calculateValueForEachIndividual();
 
         //System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
 
-        //While population gets an individual with maximum value
         while (!population.checkWhetherValueIsGlobalOptimum(++generationCount)) {
 
             population.checkFitness();
@@ -94,21 +94,15 @@ public class Test {
 
             List<SelectionCrossoverMutation> tasks = new ArrayList<>();
 
-            for (int i = 0; i < POOL_SIZE; i++) {
-                tasks.add(new SelectionCrossoverMutation(geneticAlgoUtil, parentsAndChildren));
+            for (int i = 0; i < PARENTS_PAIRS_COUNT / 40; i++) {
+                tasks.add(new SelectionCrossoverMutation(geneticAlgoUtil, parentsAndChildren, 40));
             }
 
-            for (int i = 0; i < POOL_SIZE; i++) {
-                tasks.get(i).start();
-            }
-
-            for (int i = 0; i < POOL_SIZE; i++) {
-                tasks.get(i).join();
-            }
+            exec.invokeAll(tasks);
 
             geneticAlgoUtil.optimizePopulation(parentsAndChildren);
 
-            population.calculateValueForEachIndividual();
+            population.valueAndFitness();
 
             //System.out.println("Generation: " + generationCount + " Value: " + population.getValue());
         }
